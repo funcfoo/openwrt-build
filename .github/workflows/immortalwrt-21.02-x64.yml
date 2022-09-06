@@ -76,8 +76,8 @@ jobs:
       env:
         CONFIG_FILE: '${{matrix.target}}.config'
       run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x ./customize.sh && ./customize.sh
+        mv $CONFIG_FILE openwrt/.config
+        chmod +x ./customize.sh && ./customize.sh x64
         cd openwrt
         
     - name: make-download
