@@ -78,7 +78,7 @@ jobs:
       run: |
         mv $CONFIG_FILE openwrt/.config
         chmod +x ./customize.sh && ./customize.sh x64
-        cd openwrt
+        cd openwrt && make defconfig
         
     - name: make-download
       working-directory: ./openwrt
