@@ -69,28 +69,52 @@ jobs:
     - name: update-and-install-feeds
       working-directory: ./openwrt
       run: |
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a   
-        
-    - name: customize-${{matrix.target}}
+        ./scripts/feeds update -a && ./scripts/feeds install -a
+
+    - name: customize-${{matrix.target}}-x64
+      working-directory: ./
       run: |
-        mv immortalwrt.config openwrt/.config
-        chmod +x ./customize.sh && ./customize.sh x64
-        cd openwrt && make defconfig
+        cp -f immortalwrt.config openwrt/.config
+        chmod +x ./customize.sh && ./customize.sh
+        cd openwrt
+        make defconfig
+        cp .config .x64.config
         
-    - name: make-download
+    - name: make-download-x64
       working-directory: ./openwrt
       run: |
         make download -j$(nproc)
         find dl -size -1024c -exec rm -f {} \;
 
-    - name: compile
+    - name: compile-x64
+      working-directory: ./openwrt
+      run: |
+        echo -e "$(($(nproc)+1)) thread compile"
+        make -j$(($(nproc)+1)) || make -j1 V=s        
+    
+    - name: customize-${{matrix.target}}-x86
+      working-directory: ./
+      run: |
+        cp -f immortalwrt.config openwrt/.config
+        cd openwrt
+        sed -i 's/x86_64/x86_generic/g' .config
+        rm -rf ./tmp
+        make defconfig
+        cp .config .x86.config
+        
+    - name: make-download-x86
+      working-directory: ./openwrt
+      run: |
+        make download -j$(nproc)
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: compile-x86
       working-directory: ./openwrt
       run: |
         echo -e "$(($(nproc)+1)) thread compile"
         make -j$(($(nproc)+1)) || make -j1 V=s
-        echo "::set-output name=status::success"        
-     
+        echo "::set-output name=status::success"    
+
     - name: check-space
       if: (!cancelled())
       run: df -hT
@@ -101,10 +125,9 @@ jobs:
       run: |
         mkdir firmware
         mv -f openwrt/bin/targets/*/*/{*combined*,*sysupgrade*} ./firmware/ 2>/dev/null || true
-        cp openwrt/.config  ./firmware/${{matrix.target}}.config
-        cp openwrt/build_dir/target-*/linux-*/linux-*/.config ./firmware/${{matrix.target}}_kernel.config
+        cp openwrt/.x64.config  ./firmware/${{matrix.target}}.x64.config
+        cp openwrt/.x86.config  ./firmware/${{matrix.target}}.x86.config
         cd firmware
-        echo "v${{ env.date4 }}" > version.txt
         md5=$((md5sum *squashfs-sysupgrade* || md5sum *squashfs-combined-efi*) | awk '{print $1}') 2>/dev/null
         echo $md5 >> version.txt
         rename -v "s/^immortalwrt/${{ env.VERSION }}-openwrt/" * || true
