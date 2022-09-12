@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [immortalwrt-21.02]
+        target: [immortalwrt-21.02.1]
     
     steps:
     - name: checkout
@@ -73,10 +73,8 @@ jobs:
         ./scripts/feeds install -a   
         
     - name: customize-${{matrix.target}}
-      env:
-        CONFIG_FILE: '${{matrix.target}}.config'
       run: |
-        mv $CONFIG_FILE openwrt/.config
+        mv immortalwrt.config openwrt/.config
         chmod +x ./customize.sh && ./customize.sh x64
         cd openwrt && make defconfig
         
@@ -126,7 +124,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: ${{ env.date3 }} _${{matrix.target}}
+        name: ${{matrix.target}}
         path: ${{ env.FIRMWARE }}
         
     - name: prepare-release
@@ -143,8 +141,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
       with:
         files: "${{ env.FIRMWARE }}/*"
-        name: ${{ env.date2 }} ${{matrix.target}}
-        tag_name: ${{ env.date }}_${{matrix.target}}
+        name: ${{matrix.target}}
+        tag_name: ${{matrix.target}}
         body_path: release.txt
 
     - name: delete-workflow
