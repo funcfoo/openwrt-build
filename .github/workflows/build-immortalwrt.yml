@@ -4,7 +4,7 @@
 # Author: kenzo
 #=================================================
 
-name: immortalwrt-21.02-x86
+name: build-immortalwrt
 
 on:
   repository_dispatch:
@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [immortalwrt-21.02-x86]
+        target: [immortalwrt-21.02]
     
     steps:
     - name: checkout
@@ -60,7 +60,7 @@ jobs:
     - name: clone-repository
       env: 
         REPO_URL: https://github.com/immortalwrt/immortalwrt
-        REPO_BRANCH: openwrt-21.02
+        REPO_BRANCH: v21.02.1
         TZ: Asia/Shanghai        
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
