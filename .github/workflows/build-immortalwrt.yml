@@ -92,28 +92,28 @@ jobs:
         echo -e "$(($(nproc)+1)) thread compile"
         make -j$(($(nproc)+1)) || make -j1 V=s        
     
-    - name: customize-${{matrix.target}}-x86
-      working-directory: ./
-      run: |
-        cp -f immortalwrt.config openwrt/.config
-        cd openwrt
-        sed -i 's/x86_64/x86_generic/g' .config
-        rm -rf ./tmp
-        make defconfig
-        cp .config .x86.config
+    # - name: customize-${{matrix.target}}-x86
+    #   working-directory: ./
+    #   run: |
+    #     cp -f immortalwrt.config openwrt/.config
+    #     cd openwrt
+    #     sed -i 's/x86_64/x86_generic/g' .config
+    #     rm -rf ./tmp
+    #     make defconfig
+    #     cp .config .x86.config
         
-    - name: make-download-x86
-      working-directory: ./openwrt
-      run: |
-        make download -j$(nproc)
-        find dl -size -1024c -exec rm -f {} \;
+    # - name: make-download-x86
+    #   working-directory: ./openwrt
+    #   run: |
+    #     make download -j$(nproc)
+    #     find dl -size -1024c -exec rm -f {} \;
 
-    - name: compile-x86
-      working-directory: ./openwrt
-      run: |
-        echo -e "$(($(nproc)+1)) thread compile"
-        make -j$(($(nproc)+1)) || make -j1 V=s
-        echo "::set-output name=status::success"    
+    # - name: compile-x86
+    #   working-directory: ./openwrt
+    #   run: |
+    #     echo -e "$(($(nproc)+1)) thread compile"
+    #     make -j$(($(nproc)+1)) || make -j1 V=s
+    #     echo "::set-output name=status::success"    
 
     - name: check-space
       if: (!cancelled())
