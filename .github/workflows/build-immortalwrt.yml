@@ -126,7 +126,6 @@ jobs:
         mkdir firmware
         mv -f openwrt/bin/targets/*/*/{*combined*,*sysupgrade*} ./firmware/ 2>/dev/null || true
         cp openwrt/.x64.config  ./firmware/${{matrix.target}}.x64.config
-        cp openwrt/.x86.config  ./firmware/${{matrix.target}}.x86.config
         cd firmware
         md5=$((md5sum *squashfs-sysupgrade* || md5sum *squashfs-combined-efi*) | awk '{print $1}') 2>/dev/null
         echo $md5 >> version.txt
